@@ -61,4 +61,4 @@ jobs:
             Auto-generated demo release triggered by an "enhancement" labeled PR.
             This is a showcase workflow, not a real release process.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
