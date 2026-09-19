@@ -1,0 +1,91 @@
+# Showcase workflow only — all steps are fake echos to demonstrate a multi-level CI graph.
+name: Multi-Level CI (Demo)
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  # Level 1 — parallel, no dependencies
+  lint:
+    name: Lint (fake)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running linter..."
+
+  format-check:
+    name: Format Check (fake)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Checking code formatting..."
+
+  # Level 2 — parallel unit tests, all depend on level 1
+  unit-test-backend:
+    name: Unit Tests - Backend (fake)
+    needs: [lint, format-check]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running backend unit tests..."
+
+  unit-test-frontend:
+    name: Unit Tests - Frontend (fake)
+    needs: [lint, format-check]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running frontend unit tests..."
+
+  unit-test-shared:
+    name: Unit Tests - Shared Libs (fake)
+    needs: [lint, format-check]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running shared library unit tests..."
+
+  # Level 3 — build, fans in from all unit test jobs
+  build:
+    name: Build Artifacts (fake)
+    needs: [unit-test-backend, unit-test-frontend, unit-test-shared]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building application artifacts..."
+
+  # Level 4 — parallel integration tests, both depend on build
+  integration-test-api:
+    name: Integration Tests - API (fake)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running API integration tests..."
+
+  integration-test-db:
+    name: Integration Tests - Database (fake)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running database integration tests..."
+
+  # Level 5 — end-to-end simulator, fans in from integration tests
+  e2e-simulator:
+    name: E2E Test Simulator (fake)
+    needs: [integration-test-api, integration-test-db]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Simulating end-to-end user flows..."
+
+  # Level 6 — packaging, depends on e2e simulator
+  package:
+    name: Package Release Candidate (fake)
+    needs: e2e-simulator
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Packaging release candidate..."
+
+  # Level 7 — final notify, depends on packaging
+  notify:
+    name: Notify Status (fake)
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Notifying team that pipeline completed successfully..."
