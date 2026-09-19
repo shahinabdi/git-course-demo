@@ -1,0 +1,64 @@
+# Showcase workflow only — steps are fake/dummy and meant for demo purposes.
+name: Deploy & Auto Release (Demo)
+
+on:
+  # Fake "deploy to prod" trigger — runs whenever main is updated (e.g. after a PR merge)
+  push:
+    branches:
+      - main
+
+  # Fake "auto release" trigger — reacts to label changes on pull requests
+  pull_request:
+    types: [labeled, closed]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-prod:
+    name: Deploy to Production (fake)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fake build step
+        run: echo "Building app... (demo only, no real build)"
+
+      - name: Fake deploy step
+        env:
+          # Demo only — in a real project this would come from repo/environment secrets
+          PROD_DEPLOY_KEY: ${{ secrets.PROD_DEPLOY_KEY }}
+        run: |
+          if [ -z "$PROD_DEPLOY_KEY" ]; then
+            echo "No PROD_DEPLOY_KEY set — skipping fake deploy."
+          else
+            echo "Deploying to production using secret key (fake, not printed)..."
+          fi
+
+  auto-release:
+    name: Auto Release on Enhancement PR (fake)
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'enhancement')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fake version bump
+        run: echo "Bumping version... (demo only)"
+
+      - name: Create fake release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.0.0-demo-${{ github.run_number }}
+          name: "Demo Auto Release #${{ github.run_number }}"
+          body: |
+            Auto-generated demo release triggered by an "enhancement" labeled PR.
+            This is a showcase workflow, not a real release process.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
